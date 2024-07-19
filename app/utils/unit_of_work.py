@@ -4,6 +4,7 @@ from app.database.db import async_session_maker
 from app.repositories.category import CategoryRepository
 from app.repositories.user import UserRepository
 from app.repositories.product import ProductRepository
+from app.repositories.image import ImageRepository
 
 
 class AbstractUnitOfWork(ABC):
@@ -41,6 +42,7 @@ class UnitOfWork(AbstractUnitOfWork):
         self.user = UserRepository(self.session)
         self.category = CategoryRepository(self.session)
         self.product = ProductRepository(self.session)
+        self.image = ImageRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Sequence, Union, Type
+from typing import Dict, Sequence, Union, Type, Any
 from uuid import uuid4
+from sqlalchemy.orm import joinedload
 
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.engine import Result
@@ -76,7 +77,7 @@ class SqlAlchemyRepository(AbstractRepository):
         res: Result = await self.session.execute(query)
         return res.scalars().all()
 
-    async def update_one_by_id(self, _id: Union[int, str, uuid4], values: dict) -> Type[model]: # type: ignore
+    async def update_one_by_id(self, _id: Union[int, str, uuid4], **values) -> Type[model]: # type: ignore
         query = update(self.model).filter(self.model.id == _id).values(**values).returning(self.model)
         _obj: Result | None = await self.session.execute(query)
         return _obj.scalar_one_or_none()

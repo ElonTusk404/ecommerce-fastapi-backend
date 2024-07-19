@@ -8,8 +8,8 @@ from app.models.user import UserModel
 from app.models.attribute import AttributeModel, ValueModel
 from app.models.inventory import InventoryModel
 from app.models.category import CategoryModel
-from app.models.product import ProductModel
 from app.models.image import ImageModel
+from app.models.product import ProductModel
 from app.database.db import Base
 
 

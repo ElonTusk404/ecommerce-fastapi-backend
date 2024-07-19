@@ -64,7 +64,7 @@ async def get_current_admin_user(token: str = Depends(oauth2_schema), uow: UnitO
     return user
 
 async def upload_to_cloud(image):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
 
         timeout = httpx.Timeout(60.0, read=None)
 

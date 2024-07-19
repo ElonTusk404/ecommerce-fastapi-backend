@@ -1,10 +1,5 @@
 from app.database.db import Base
-from sqlalchemy import Integer, String, Column, BigInteger, DateTime, func, ForeignKey, JSON, Date, Computed
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime, timezone
-
-from app.database.db import Base
-from sqlalchemy import Integer, String, Column, DateTime
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 
@@ -19,8 +14,22 @@ class ProductModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    images = relationship("ImageModel", back_populates="product")
-    inventory = relationship("InventoryModel", uselist=False, back_populates="product")
-    values = relationship("ValueModel", back_populates="product")
+    @property
+    def images(self):
+        from app.models.image import ImageModel
+        return relationship("ImageModel", back_populates="product", lazy='subquery')
 
-    category = relationship("CategoryModel", backref="products")
+    @property
+    def inventory(self):
+        from app.models.inventory import InventoryModel
+        return relationship("InventoryModel", uselist=False, back_populates="product", lazy='subquery')
+
+    @property
+    def values(self):
+        from app.models.attribute import ValueModel
+        return relationship("ValueModel", back_populates="product", lazy='subquery')
+
+    @property
+    def category(self):
+        from app.models.category import CategoryModel
+        return relationship("CategoryModel", backref="products", lazy='subquery')

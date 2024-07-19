@@ -1,5 +1,5 @@
 from app.database.db import Base
-from sqlalchemy import Integer, String, Column, BigInteger, DateTime, UniqueConstraint, func, ForeignKey, JSON, Date, Computed
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 
@@ -12,4 +12,7 @@ class ImageModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    product = relationship("ProductModel", back_populates="images")
+    @property
+    def product(self):
+        from app.models.product import ProductModel
+        return relationship("ProductModel", back_populates="images")

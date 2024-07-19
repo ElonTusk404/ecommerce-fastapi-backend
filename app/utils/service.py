@@ -68,10 +68,10 @@ class BaseService:
             cls,
             uow: UnitOfWork,
             _id: Union[int, str, uuid4],
-            values: dict
+            **values
     ) -> Any:
         async with uow:
-            _obj = await uow.__dict__[cls.base_repository].update_one_by_id(_id=_id, values=values)
+            _obj = await uow.__dict__[cls.base_repository].update_one_by_id(_id=_id, **values)
             return _obj
 
     @classmethod

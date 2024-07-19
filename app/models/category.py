@@ -1,5 +1,5 @@
 from app.database.db import Base
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
+from sqlalchemy import Integer, String, Column, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 
@@ -12,4 +12,6 @@ class CategoryModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    parent = relationship("CategoryModel", remote_side=[id], backref="children")
+    @property
+    def parent(self):
+        return relationship("CategoryModel", remote_side=[self.id], backref="children")
