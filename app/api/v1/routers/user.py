@@ -7,7 +7,7 @@ from app.utils.unit_of_work import UnitOfWork
 from fastapi.security import OAuth2PasswordRequestForm
 from app.services.security import create_access_token, authenticate_user, get_current_user, get_password_hash
 
-user_router = APIRouter(prefix='/api')
+user_router = APIRouter(prefix='/api/v1', tags=['Reg&Login&Me'])
 
 
 @user_router.post('/register')

@@ -12,7 +12,7 @@ from app.utils.unit_of_work import UnitOfWork
 
 
 
-oauth2_schema = security.OAuth2PasswordBearer("/api/login")
+oauth2_schema = security.OAuth2PasswordBearer("/api/v1/login")
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated = 'auto')
 
@@ -57,6 +57,11 @@ async def get_current_user(token: str = Depends(oauth2_schema), uow: UnitOfWork 
         raise HTTPException(status_code=401, detail="Invalid token")
     return user
 
+async def get_current_admin_user(token: str = Depends(oauth2_schema), uow: UnitOfWork = Depends(UnitOfWork)):
+    user = await get_current_user(token, uow)
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Operation forbidden: admin access required")
+    return user
 
 async def upload_to_cloud(image):
     async with httpx.AsyncClient() as client:
@@ -66,3 +71,4 @@ async def upload_to_cloud(image):
         response = await client.post("https://sd.cuilutech.com/r2/uploadfile", files={'file': (str(uuid.uuid4()), image)}, timeout=timeout)
         response_data = response.json()
         return response_data["data"]
+    

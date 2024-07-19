@@ -1,11 +1,18 @@
 import asyncio
 from logging.config import fileConfig
-from config import settings
 from sqlalchemy import pool
-from app.database.db import Base
-from app.models.user import UserModel
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+from config import settings
+from app.models.user import UserModel
+from app.models.attribute import AttributeModel, ValueModel
+from app.models.inventory import InventoryModel
+from app.models.category import CategoryModel
+from app.models.product import ProductModel
+from app.models.image import ImageModel
+from app.database.db import Base
+
+
 
 from alembic import context
 

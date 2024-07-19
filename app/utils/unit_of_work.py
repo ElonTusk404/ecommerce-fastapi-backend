@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 
 from app.database.db import async_session_maker
+from app.repositories.category import CategoryRepository
 from app.repositories.user import UserRepository
+from app.repositories.product import ProductRepository
 
 
 class AbstractUnitOfWork(ABC):
@@ -37,6 +39,8 @@ class UnitOfWork(AbstractUnitOfWork):
     async def __aenter__(self):
         self.session = self.session_factory()
         self.user = UserRepository(self.session)
+        self.category = CategoryRepository(self.session)
+        self.product = ProductRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:
