@@ -1,4 +1,4 @@
-from app.models.image import ImageModel
+from app.models.models import ImageModel
 from app.utils.repository import SqlAlchemyRepository
 
 

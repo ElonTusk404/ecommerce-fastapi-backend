@@ -1,4 +1,4 @@
-from app.models.attribute import AttributeModel, ValueModel
+from app.models.models import AttributeModel, ValueModel
 from app.utils.repository import SqlAlchemyRepository
 
 

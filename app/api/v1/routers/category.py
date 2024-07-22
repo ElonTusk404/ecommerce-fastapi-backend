@@ -1,6 +1,5 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.models.category import CategoryModel
 from app.models.user import UserModel
 from app.schemas.category import CategorySchemaCreate, CategorySchemaInDB, CategoryResponse, CategorySchemaUpdate
 from app.services.category import CategoryService

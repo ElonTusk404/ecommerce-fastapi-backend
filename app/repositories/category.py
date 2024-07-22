@@ -2,7 +2,7 @@ from typing import Dict, List
 from sqlalchemy.orm import aliased
 
 from sqlalchemy import select
-from app.models.category import CategoryModel
+from app.models.models import CategoryModel
 from app.utils.repository import SqlAlchemyRepository
 
 
@@ -10,7 +10,6 @@ class CategoryRepository(SqlAlchemyRepository):
     model = CategoryModel
 
     async def get_all_descendants(self, category_id: int):
-        # Рекурсивный метод для построения дерева потомков
         async def build_tree(categories, parent_id=None):
             tree = []
             for category in categories:
@@ -23,12 +22,10 @@ class CategoryRepository(SqlAlchemyRepository):
                     })
             return tree
 
-        # Запрос для получения всех категорий
         query = select(CategoryModel)
         result = await self.session.execute(query)
         categories = result.scalars().all()
 
-        # Строим дерево потомков для заданной категории
         return await build_tree(categories, category_id)
 
     async def get_all_ancestors(self, category_id: int):
@@ -45,7 +42,7 @@ class CategoryRepository(SqlAlchemyRepository):
             else:
                 break
 
-        return ancestors[::-1]  # reverse to get root ancestor first
+        return ancestors[::-1]
     
     async def get_all_categories(self):
         async def build_tree(categories, parent_id=None):
@@ -60,10 +57,8 @@ class CategoryRepository(SqlAlchemyRepository):
                     })
             return tree
 
-        # Запрос для получения всех категорий
         query = select(CategoryModel)
         result = await self.session.execute(query)
         categories = result.scalars().all()
 
-        # Строим дерево всех категорий, начиная с корневых
         return await build_tree(categories)

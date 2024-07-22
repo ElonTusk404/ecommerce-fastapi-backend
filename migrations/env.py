@@ -5,11 +5,11 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from config import settings
 from app.models.user import UserModel
-from app.models.attribute import AttributeModel, ValueModel
-from app.models.inventory import InventoryModel
-from app.models.category import CategoryModel
-from app.models.image import ImageModel
-from app.models.product import ProductModel
+from app.models.models import AttributeModel
+from app.models.models import InventoryModel
+from app.models.models import CategoryModel
+from app.models.models import ImageModel
+from app.models.models import ProductModel
 from app.database.db import Base
 
 
