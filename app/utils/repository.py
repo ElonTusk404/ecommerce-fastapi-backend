@@ -65,7 +65,7 @@ class SqlAlchemyRepository(AbstractRepository):
     async def add_one_and_get_obj(self, **kwargs) -> Type[model]: # type: ignore
         query = insert(self.model).values(**kwargs).returning(self.model)
         _obj: Result = await self.session.execute(query)
-        return _obj.scalar_one()
+        return _obj.unique().scalar_one()
 
     async def get_by_query_one_or_none(self, **kwargs) -> Type[model]: # type: ignore
         query = select(self.model).filter_by(**kwargs)
@@ -75,12 +75,24 @@ class SqlAlchemyRepository(AbstractRepository):
     async def get_by_query_all(self, **kwargs) -> Sequence[Type[model]]: # type: ignore
         query = select(self.model).filter_by(**kwargs)
         res: Result = await self.session.execute(query)
-        return res.scalars().all()
+        return res.unique().scalars().all()
+    
+    async def get_by_query_with_limit(self, limit: int, offset: int = 0, **kwargs) -> Sequence[Type[model]]: # type: ignore
+        query = (
+            select(self.model)
+            .filter_by(**kwargs)
+            .limit(limit)
+            .offset(offset)
+        )
+        res: Result = await self.session.execute(query)
+        return res.unique().scalars().all()
 
-    async def update_one_by_id(self, _id: Union[int, str, uuid4], **values) -> Type[model]: # type: ignore
+    async def update_one_by_id(self, _id: int, **values) -> Type[model]: # type: ignore
+ 
+
         query = update(self.model).filter(self.model.id == _id).values(**values).returning(self.model)
         _obj: Result | None = await self.session.execute(query)
-        return _obj.scalar_one_or_none()
+        return _obj.unique().scalar_one_or_none()
 
     async def delete_by_query(self, **kwargs) -> None:
         query = delete(self.model).filter_by(**kwargs)

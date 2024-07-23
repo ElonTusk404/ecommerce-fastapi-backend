@@ -1,17 +1,17 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.models.user import UserModel
-from app.schemas.user import UserSchema
+from app.schemas.user import UserSchemaCreate, UserSchemaResponse
 from app.services.user import UserService
 from app.utils.unit_of_work import UnitOfWork
 from fastapi.security import OAuth2PasswordRequestForm
 from app.services.security import create_access_token, authenticate_user, get_current_user, get_password_hash
 
-user_router = APIRouter(prefix='/api/v1', tags=['Reg&Login&Me'])
+user_router = APIRouter(prefix='/api/v1/user', tags=['Reg&Login&Me'])
 
 
-@user_router.post('/register')
-async def register_user(user_data: UserSchema, uow: UnitOfWork = Depends(UnitOfWork)):
+@user_router.post('/register', status_code=status.HTTP_201_CREATED, response_model = UserSchemaResponse)
+async def register_user(user_data: UserSchemaCreate, uow: UnitOfWork = Depends(UnitOfWork)):
     user: UserModel | None = await UserService.get_by_query_one_or_none(uow=uow, email=user_data.email)
     if user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT)
@@ -28,6 +28,6 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], uow:
         raise HTTPException(status_code=303, detail='no user')
     return await create_access_token(data={'sub': form_data.username})
 
-@user_router.post('/me', status_code=status.HTTP_200_OK)
+@user_router.post('/me', status_code=status.HTTP_200_OK, response_model=UserSchemaResponse)
 async def me(current_user: Annotated[UserModel, Depends(get_current_user)]):
     return current_user

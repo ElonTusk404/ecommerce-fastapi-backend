@@ -1,6 +1,6 @@
 from app.database.db import Base
 from sqlalchemy import Integer, String, Column, BigInteger, DateTime, func, ForeignKey, JSON, Date, Computed
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 
 class UserModel(Base):
@@ -14,5 +14,6 @@ class UserModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-
+    cart_items = relationship("CartModel", back_populates="user")
+    orders = relationship("OrderModel", back_populates="user")
     

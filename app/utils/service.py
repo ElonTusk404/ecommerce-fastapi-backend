@@ -52,7 +52,7 @@ class BaseService:
         async with uow:
             _result = await uow.__dict__[cls.base_repository].get_by_query_one_or_none(**kwargs)
             return _result
-
+        
     @classmethod
     async def get_by_query_all(
             cls,
@@ -62,7 +62,17 @@ class BaseService:
         async with uow:
             _result = await uow.__dict__[cls.base_repository].get_by_query_all(**kwargs)
             return _result
-
+    @classmethod
+    async def get_by_query_with_limit(
+            cls,
+            uow: UnitOfWork,
+            limit: int,
+            offset: int = 0,
+            **kwargs
+    ) -> Sequence[Any]:
+        async with uow:
+            _result = await uow.__dict__[cls.base_repository].get_by_query_with_limit(limit, offset, **kwargs)
+            return _result
     @classmethod
     async def update_one_by_id(
             cls,

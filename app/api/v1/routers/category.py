@@ -39,3 +39,8 @@ async def get_all_categories(
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
     return await CategoryService.get_all_categories(uow=uow)
+
+
+@category_router.get('/', response_model=List[CategorySchemaInDB], status_code=status.HTTP_200_OK)
+async def get_main_categories(uow: UnitOfWork = Depends(UnitOfWork)):
+    return await CategoryService.get_by_query_all(uow=uow, parent_id=None)

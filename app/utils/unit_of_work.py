@@ -6,6 +6,10 @@ from app.repositories.inventory import InventoryRepository
 from app.repositories.user import UserRepository
 from app.repositories.product import ProductRepository
 from app.repositories.image import ImageRepository
+from app.repositories.attribute import AttributeRepository
+from app.repositories.cart import CartRepository
+from app.repositories.order import OrderRepository
+from app.repositories.order_item import OrderItemRepository
 
 
 class AbstractUnitOfWork(ABC):
@@ -45,6 +49,10 @@ class UnitOfWork(AbstractUnitOfWork):
         self.product = ProductRepository(self.session)
         self.image = ImageRepository(self.session)
         self.inventory = InventoryRepository(self.session)
+        self.attribute = AttributeRepository(self.session)
+        self.cart = CartRepository(self.session)
+        self.order = OrderRepository(self.session)
+        self.order_item = OrderItemRepository(self.session)
 
     async def __aexit__(self, exc_type, *args):
         if not exc_type:

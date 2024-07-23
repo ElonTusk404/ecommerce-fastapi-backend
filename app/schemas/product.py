@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+from app.schemas.attribute import AttributeSchemaInDB
+
 class ProductCreate(BaseModel):
     name: str
     category_id: int
@@ -36,6 +38,7 @@ class ProductInDB(BaseModel):
     updated_at: datetime
     images: List[ImageInDB] = []
     inventory: Optional[InventoryInDB] = None  
+    attributes: List[AttributeSchemaInDB] = []
 
     class Config:
         from_attributes = True
@@ -45,7 +48,6 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
     description: Optional[str] = None
     price: Optional[int] = None
-    images: Optional[List[str]] = None 
     inventory: Optional[int] = None  
 
     class Config:
