@@ -1,28 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
-from typing import Annotated, List, Optional
-from app.models.models import ProductModel
+from typing import Annotated, List
 from app.models.user import UserModel
-from app.schemas.product import ImageInDB, ProductCreate, ProductInDB, ProductUpdate
+from app.schemas.order import OrderSchemaResponse
+from app.schemas.product import ImageSchemaInDB, ProductSchemaCreate, ProductSchemaInDB, ProductSchemaUpdate
 from app.services.category import CategoryService
 from app.services.attribute import AttributeService
 from app.schemas.attribute import AttributeSchemaCreate, AttributeSchemaUpdate, AttributeSchemaInDB
+from app.services.order import OrderService
 from app.services.product import ProductService
 from app.services.inventory import InventoryService
 from app.services.image import ImageService
 from app.services.security import upload_to_cloud
-from app.services.security import get_current_user, get_current_admin_user
+from app.services.security import get_current_admin_user
 from app.utils.unit_of_work import UnitOfWork
+from fastapi_cache.decorator import cache
 
-product_router = APIRouter(prefix='/api/v1/product', tags=['Product\'s Admin'])
 
-@product_router.post('/', status_code=status.HTTP_201_CREATED, response_model=ProductInDB)
+product_router = APIRouter(prefix='/api/v1/product', tags=['Admin Dashboard'])
+
+@product_router.post('', status_code=status.HTTP_201_CREATED, response_model=ProductSchemaInDB)
 async def add_product(
     admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
-    new_product_data: ProductCreate = Depends(),
+    new_product_data: ProductSchemaCreate = Depends(),
     images: List[UploadFile] = File(...),
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
-    
+    #Можно добавить сюда и атрибуты добавление кстати
     category = await CategoryService.get_by_query_one_or_none(uow=uow, id=new_product_data.category_id)
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Category with id {new_product_data.category_id} not found')
@@ -52,15 +55,14 @@ async def add_product(
 
     return product_info
 
-@product_router.patch('/{product_id}', status_code=status.HTTP_200_OK, response_model=ProductInDB)
+@product_router.patch('/{product_id}', status_code=status.HTTP_200_OK, response_model=ProductSchemaInDB)
 async def update_product(
     product_id: int,
     admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
-    updated_product_data: ProductUpdate = Depends(),
+    updated_product_data: ProductSchemaUpdate = Depends(),
     images: List[UploadFile] = File(...),
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
-    print(updated_product_data)
     product = await ProductService.get_by_query_one_or_none(uow=uow, id=product_id)
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Product with id {product_id} not found')
@@ -88,16 +90,18 @@ async def update_product(
     if updated_product_data.inventory is not None:
         product_inventory = await InventoryService.get_by_query_one_or_none(uow=uow, product_id=product_id)
         await InventoryService.update_one_by_id(uow=uow, _id=product_inventory.id, quantity=updated_product_data.inventory)
-    updated_product_info = await ProductService.get_full_product_info(uow=uow, id=product.id)
+    updated_product_info = await ProductService.get_by_query_one_or_none(uow=uow, id=product.id)
 
     return updated_product_info
-@product_router.get('/{product_id}', response_model=ProductInDB)
+
+@product_router.get('/{product_id}', response_model=ProductSchemaInDB)
+@cache(expire=30)
 async def get_product(
     product_id: int,
-    user: Annotated[UserModel, Depends(get_current_user)],
+    user: Annotated[UserModel, Depends(get_current_admin_user)],
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
-    product = await ProductService.get_full_product_info(uow=uow, id=product_id)
+    product = await ProductService.get_by_query_one_or_none(uow=uow, id=product_id)
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -105,10 +109,10 @@ async def get_product(
         )
     return product
 
-@product_router.get('/images/{product_id}', status_code=status.HTTP_200_OK, response_model=List[ImageInDB])
+@product_router.get('/images/{product_id}', status_code=status.HTTP_200_OK, response_model=List[ImageSchemaInDB])
 async def get_product_images(
     product_id: int,
-    admin_user: Annotated[UserModel, Depends(get_current_user)],
+    admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
     images = await ImageService.get_by_query_all(uow=uow, product_id=product_id)
@@ -119,7 +123,7 @@ async def get_product_images(
 @product_router.post('/attribute', status_code=status.HTTP_201_CREATED, response_model=AttributeSchemaInDB)
 async def add_attribute(
     new_attribute_data: AttributeSchemaCreate,
-    admin_user: Annotated[UserModel, Depends(get_current_user)],
+    admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
     return await AttributeService.add_one_and_get_obj(uow=uow, **new_attribute_data.model_dump(exclude_unset=True))
@@ -128,7 +132,7 @@ async def add_attribute(
 async def update_attribute(
     id: int,
     new_attribute_data: AttributeSchemaUpdate,
-    admin_user: Annotated[UserModel, Depends(get_current_user)],
+    admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
    exists_attribute = await AttributeService.get_by_query_one_or_none(uow=uow, id=id)
@@ -143,7 +147,7 @@ async def update_attribute(
 @product_router.delete('/attribute/{id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_attribute(
     id: int,
-    admin_user: Annotated[UserModel, Depends(get_current_user)],
+    admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
     exists_attribute = await AttributeService.get_by_query_one_or_none(uow=uow, id=id)
@@ -155,12 +159,30 @@ async def delete_attribute(
 @product_router.delete('/image/{image_id}', status_code=status.HTTP_200_OK)
 async def delete_product_image(
     image_id: int,
-    admin_user: Annotated[UserModel, Depends(get_current_user)],
+    admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
     exists_image = await ImageService.get_by_query_one_or_none(uow=uow, id=image_id)
     if not exists_image:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     await ImageService.delete_by_query(uow=uow, id=image_id)
+
+@product_router.get('/{order_id}', status_code=status.HTTP_200_OK, response_model=OrderSchemaResponse)
+async def get_admin_order_info(
+    order_id: int,
+    admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
+    uow: UnitOfWork = Depends(UnitOfWork)
+):
+    order_info = await OrderService.get_by_query_one_or_none(
+        uow=uow,
+        id=order_id
+    )
+    
+    if order_info is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    
+    return order_info
+
+
 
 

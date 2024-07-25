@@ -4,7 +4,8 @@ from app.models.user import UserModel
 from app.services.security import get_current_user
 from app.utils.unit_of_work import UnitOfWork
 from app.services.cart import CartService
-from app.schemas.cart import CartSchemaCreate, CartSchemaInDB, CartSchemaUpdate
+from app.schemas.cart import CartSchemaInDB, CartSchemaUpdate
+
 cart_router = APIRouter(prefix = '/api/v1/cart', tags = ['Cart'])
 
 @cart_router.get('', status_code = status.HTTP_200_OK, response_model=List[CartSchemaInDB])

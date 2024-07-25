@@ -29,7 +29,7 @@ class CategorySchemaInDB(CategorySchemaInDBBase):
 class CategoryResponse(BaseModel):
     id: int
     name: str
-    children: Optional[List['CategoryResponse']] = []
+    parent_id: Optional[int] = None
 
     class Config:
         from_attributes = True

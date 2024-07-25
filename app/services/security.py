@@ -12,7 +12,7 @@ from app.utils.unit_of_work import UnitOfWork
 
 
 
-oauth2_schema = security.OAuth2PasswordBearer("/api/v1/login")
+oauth2_schema = security.OAuth2PasswordBearer("/api/v1/user/login")
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated = 'auto')
 
@@ -62,6 +62,20 @@ async def get_current_admin_user(token: str = Depends(oauth2_schema), uow: UnitO
     if user.role != "admin":
         raise HTTPException(status_code=403, detail="Operation forbidden: admin access required")
     return user
+
+async def verify_ws_token(token: str, uow: UnitOfWork = Depends(UnitOfWork)):
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
+        user = await UserService.get_by_query_one_or_none(email=payload.get("sub"), uow=uow)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.DecodeError:
+        raise HTTPException(status_code=401, detail="Could not decode token")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 async def upload_to_cloud(image):
     async with httpx.AsyncClient(verify=False) as client:

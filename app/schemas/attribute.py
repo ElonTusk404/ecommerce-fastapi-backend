@@ -11,8 +11,9 @@ class AttributeSchemaBase(BaseModel):
 class AttributeSchemaCreate(AttributeSchemaBase):
     pass
 
-class AttributeSchemaUpdate(AttributeSchemaBase):
-    pass
+class AttributeSchemaUpdate(BaseModel):
+    name: str
+    value: str
 
 class AttributeSchemaInDBBase(AttributeSchemaBase):
     id: int
@@ -27,3 +28,8 @@ class AttributeSchema(AttributeSchemaInDBBase):
 
 class AttributeSchemaInDB(AttributeSchemaInDBBase):
     pass
+class AttributeSchemaResponse(BaseModel):
+    id: int
+    name: str
+    value: str
+

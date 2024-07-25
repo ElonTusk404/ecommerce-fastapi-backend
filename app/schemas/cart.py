@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-from app.schemas.product import ProductInDB
+from app.schemas.product import ProductSchemaInDB, ProductSchemaResponse
 
 class CartSchemaCreate(BaseModel):
     product_id: int
@@ -25,7 +25,16 @@ class CartSchemaInDB(BaseModel):
     quantity: int
     created_at: datetime
     updated_at: datetime
-    product: Optional[ProductInDB]
+    product: Optional[ProductSchemaResponse]
+
+    class Config:
+        from_attributes = True
+
+class CartSchemaResponse(BaseModel):
+    id: int
+    product_id: int
+    quantity: int
+    product: Optional[ProductSchemaResponse]  
 
     class Config:
         from_attributes = True
