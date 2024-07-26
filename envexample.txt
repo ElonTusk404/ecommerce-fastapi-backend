@@ -1,0 +1,7 @@
+MODE=DEV
+DB_HOST = ep-muddy-lab-a2tfkb3o.eu-central-1.aws.neon.tech
+DB_PORT = 5432
+DB_USER = neondb_owner
+DB_NAME = neondb
+DB_PASS = yke3jQfD2Eim
+JWT_SECRET = h024hr2ry23rh23
