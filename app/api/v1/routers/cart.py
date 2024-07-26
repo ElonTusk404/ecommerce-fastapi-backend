@@ -44,6 +44,7 @@ async def update_cart_item(
     if not cart_item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     result = await CartService.update_one_by_id(uow=uow, _id=id, **new_data.model_dump(exclude_unset=True))
+    return result
 
 @cart_router.delete('', status_code=status.HTTP_204_NO_CONTENT)
 async def clear_cart(
