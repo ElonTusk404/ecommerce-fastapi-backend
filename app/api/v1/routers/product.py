@@ -16,7 +16,7 @@ from app.utils.unit_of_work import UnitOfWork
 from fastapi_cache.decorator import cache
 
 
-product_router = APIRouter(prefix='/api/v1/product', tags=['Admin Dashboard'])
+product_router = APIRouter(prefix='/api/v1/products', tags=['Admin Dashboard'])
 
 @product_router.post('', status_code=status.HTTP_201_CREATED, response_model=ProductSchemaInDB)
 async def add_product(
@@ -25,6 +25,31 @@ async def add_product(
     images: List[UploadFile] = File(...),
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
+    
+    """
+    Adds a new product to the database.
+
+    :param new_product_data: The product details for creation.\n
+        - name (str): Product name (8-64 characters).
+        - category_id (int): Category ID.
+        - description (str): Product description (64-512 characters).
+        - price (int): Product price (greater than 0 and up to 512).
+        - inventory (Optional[int]): Product quantity (greater than 0 and up to 512).
+    :param images: A list of product images (JPEG and PNG only).\n
+    :return: Status `201` with `ProductSchemaInDB` object containing:\n
+        - id (int): Unique product identifier.
+        - name (str): Product name.
+        - category_id (int): Category ID.
+        - description (str): Product description.
+        - price (int): Product price.
+        - created_at (datetime): Creation timestamp.
+        - updated_at (datetime): Last updated timestamp.
+        - images (List[ImageSchemaInDB]): Associated product images.
+        - inventory (Optional[InventorySchemaInDB]): Inventory information, if provided.
+        - attributes (List[AttributeSchemaResponse]): Product attributes.
+    :raises HTTPException: Status `404` if category does not exist.\n
+    :raises HTTPException: Status `400` if invalid file type is uploaded.
+    """
     #Можно добавить сюда и атрибуты добавление кстати
     category = await CategoryService.get_by_query_one_or_none(uow=uow, id=new_product_data.category_id)
     if not category:
@@ -51,7 +76,7 @@ async def add_product(
     if new_product_data.inventory is not None:
         await InventoryService.add_one_and_get_obj(uow=uow, product_id=product.id, quantity=new_product_data.inventory)
 
-    product_info = await ProductService.get_full_product_info(uow=uow, id=product.id)
+    product_info = await ProductService.get_by_query_one_or_none(uow=uow, id=product.id)
 
     return product_info
 
@@ -63,6 +88,38 @@ async def update_product(
     images: List[UploadFile] = File(...),
     uow: UnitOfWork = Depends(UnitOfWork)
 ):
+    """
+    Updates an existing product in the database.
+
+    This endpoint allows an admin user to update the details of a product, including its name,
+    description, category, price, and inventory quantity. Provided images are validated and
+    uploaded to cloud storage. Inventory data, if updated, is also processed.
+
+    :param product_id: The ID of the product to be updated.\n
+    :param admin_user: The currently authenticated admin user. Defaults to Depends(get_current_admin_user).\n
+    :param updated_product_data: The product details to be updated.\n
+        - name (Optional[str]): Product name (8-64 characters).
+        - category_id (Optional[int]): Category ID.
+        - description (Optional[str]): Product description (64-512 characters).
+        - price (Optional[int]): Product price (greater than 0 and up to 512).
+        - inventory (Optional[int]): Product quantity (greater than 0 and up to 512).
+    :param images: A list of product images (JPEG and PNG only).\n
+    :return: Status `200` with `ProductSchemaInDB` object containing:\n
+        - id (int): Unique product identifier.
+        - name (str): Product name.
+        - category_id (int): Category ID.
+        - description (str): Product description.
+        - price (int): Product price.
+        - created_at (datetime): Creation timestamp.
+        - updated_at (datetime): Last updated timestamp.
+        - images (List[ImageSchemaInDB]): Associated product images.
+        - inventory (Optional[InventorySchemaInDB]): Inventory information, if provided.
+        - attributes (List[AttributeSchemaResponse]): Product attributes.
+    :raises HTTPException: Status `404` if the product or category does not exist.\n
+    :raises HTTPException: Status `400` if invalid file type is uploaded.
+    """
+
+
     product = await ProductService.get_by_query_one_or_none(uow=uow, id=product_id)
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Product with id {product_id} not found')

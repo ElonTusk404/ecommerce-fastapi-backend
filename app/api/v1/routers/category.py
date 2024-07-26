@@ -4,9 +4,9 @@ from app.models.user import UserModel
 from app.schemas.category import CategorySchemaCreate, CategorySchemaInDB, CategoryResponse, CategorySchemaUpdate
 from app.services.category import CategoryService
 from app.utils.unit_of_work import UnitOfWork
-from app.services.security import get_current_user, get_current_admin_user
+from app.services.security import get_current_admin_user
 
-category_router = APIRouter(prefix='/api/v1/category', tags=['Category\'s Admin'])
+category_router = APIRouter(prefix='/api/v1/categorys', tags=['Category\'s Admin'])
 
 @category_router.post('', status_code=status.HTTP_201_CREATED, response_model=CategorySchemaInDB)
 async def create_category(new_category_data: CategorySchemaCreate, admin_user: Annotated[UserModel, Depends(get_current_admin_user)], uow: UnitOfWork = Depends(UnitOfWork)):

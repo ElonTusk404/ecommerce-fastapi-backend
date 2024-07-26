@@ -6,7 +6,7 @@ from app.utils.unit_of_work import UnitOfWork
 from app.services.cart import CartService
 from app.schemas.cart import CartSchemaInDB, CartSchemaUpdate
 
-cart_router = APIRouter(prefix = '/api/v1/cart', tags = ['Cart'])
+cart_router = APIRouter(prefix = '/api/v1/carts', tags = ['Cart'])
 
 @cart_router.get('', status_code = status.HTTP_200_OK, response_model=List[CartSchemaInDB])
 async def get_user_cart(
@@ -45,7 +45,7 @@ async def update_cart_item(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     result = await CartService.update_one_by_id(uow=uow, _id=id, **new_data.model_dump(exclude_unset=True))
 
-@cart_router.delete('/', status_code=status.HTTP_204_NO_CONTENT)
+@cart_router.delete('', status_code=status.HTTP_204_NO_CONTENT)
 async def clear_cart(
     user: Annotated[UserModel, Depends(get_current_user)],
     uow: UnitOfWork = Depends(UnitOfWork)

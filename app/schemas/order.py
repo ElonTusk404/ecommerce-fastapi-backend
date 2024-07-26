@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -14,20 +14,20 @@ class OrderSchemaStatusEnum(str, Enum):
 
 
 class OrderSchemaCreate(BaseModel):
-    phone_number: str
-    country: str
-    city: str
-    address: str
+    phone_number: str = Field(..., description="Phone number of the customer", min_length=10, max_length=15)
+    country: str = Field(..., description="Country of the customer", min_length=2, max_length=56)
+    city: str = Field(..., description="City of the customer", min_length=1, max_length=85)
+    address: str = Field(..., description="Address of the customer", min_length=5, max_length=100)
 
     class Config:
         from_attributes = True
 
 class OrderSchemaUpdate(BaseModel):
-    status: Optional[OrderSchemaStatusEnum] = None
-    phone_number: Optional[str] = None
-    country: Optional[str] = None
-    city: Optional[str] = None
-    address: Optional[str] = None
+    status: Optional[OrderSchemaStatusEnum] = Field(None, description="Status of the order")
+    phone_number: Optional[str] = Field(None, description="Phone number of the customer", min_length=10, max_length=15)
+    country: Optional[str] = Field(None, description="Country of the customer", min_length=2, max_length=56)
+    city: Optional[str] = Field(None, description="City of the customer", min_length=1, max_length=85)
+    address: Optional[str] = Field(None, description="Address of the customer", min_length=5, max_length=100)
 
     class Config:
         from_attributes = True
