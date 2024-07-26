@@ -19,7 +19,7 @@ async def get_products_with_limit(
     return await ProductService.get_by_query_with_limit(uow=uow, limit=limit, offset=offset)
 
 
-@catalog_router.get('/category/{category_id}', status_code=status.HTTP_200_OK, response_model=List[ProductSchemaInDB])
+@catalog_router.get('/categories/{category_id}', status_code=status.HTTP_200_OK, response_model=List[ProductSchemaInDB])
 @cache(expire=30)
 async def get_products_by_category(
     category_id: int,

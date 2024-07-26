@@ -177,7 +177,7 @@ async def get_product_images(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return images
 
-@product_router.post('/attribute', status_code=status.HTTP_201_CREATED, response_model=AttributeSchemaInDB)
+@product_router.post('/attributes', status_code=status.HTTP_201_CREATED, response_model=AttributeSchemaInDB)
 async def add_attribute(
     new_attribute_data: AttributeSchemaCreate,
     admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
@@ -185,7 +185,7 @@ async def add_attribute(
 ):
     return await AttributeService.add_one_and_get_obj(uow=uow, **new_attribute_data.model_dump(exclude_unset=True))
 
-@product_router.patch('/attribute/{id}', status_code=status.HTTP_200_OK, response_model=AttributeSchemaInDB)
+@product_router.patch('/attributes/{id}', status_code=status.HTTP_200_OK, response_model=AttributeSchemaInDB)
 async def update_attribute(
     id: int,
     new_attribute_data: AttributeSchemaUpdate,
@@ -201,7 +201,7 @@ async def update_attribute(
        **new_attribute_data.model_dump(exclude_unset=True)
    )
 
-@product_router.delete('/attribute/{id}', status_code=status.HTTP_204_NO_CONTENT)
+@product_router.delete('/attributes/{id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_attribute(
     id: int,
     admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
@@ -224,7 +224,7 @@ async def delete_product_image(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     await ImageService.delete_by_query(uow=uow, id=image_id)
 
-@product_router.get('/{order_id}', status_code=status.HTTP_200_OK, response_model=OrderSchemaResponse)
+@product_router.get('/orders/{order_id}', status_code=status.HTTP_200_OK, response_model=OrderSchemaResponse)
 async def get_admin_order_info(
     order_id: int,
     admin_user: Annotated[UserModel, Depends(get_current_admin_user)],
