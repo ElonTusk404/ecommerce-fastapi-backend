@@ -10,3 +10,28 @@ Welcome to my first project using FastAPI! This project is an online store backe
 - **Cart**: Manage user's cart, add, update, and remove items.
 - **Order Management**: Create and view orders.
 - **Caching**: Using Redis for caching frequently accessed data.
+
+
+Technologies Used
+
+	•	FastAPI: For building the API.
+	•	SQLAlchemy: For database interactions.
+	•	Pydantic: For data validation.
+	•	PostgreSQL: As the database.
+	•	Redis: For caching.
+
+Future Improvements
+
+	•	Adding more comprehensive tests.
+	•	Implementing frontend for the online store.
+	•	Enhancing security and adding more features.
+	•	Regular updates and improvements to the project.
+	•	Adding cryptocurrency payments.
+	•	Implementing more accurate product filtering.
+
+
+Status
+
+This project is in active development.
+
+Feel free to explore the code and suggest improvements. This is a learning project, and I’m open to feedback and collaboration.
