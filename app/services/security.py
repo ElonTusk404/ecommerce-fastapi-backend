@@ -12,7 +12,7 @@ from app.utils.unit_of_work import UnitOfWork
 
 
 
-oauth2_schema = security.OAuth2PasswordBearer("/api/v1/user/login")
+oauth2_schema = security.OAuth2PasswordBearer("/api/v1/users/login")
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated = 'auto')
 
