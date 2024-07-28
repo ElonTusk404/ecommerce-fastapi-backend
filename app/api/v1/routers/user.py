@@ -6,7 +6,7 @@ from app.services.user import UserService
 from app.utils.unit_of_work import UnitOfWork
 from fastapi.security import OAuth2PasswordRequestForm
 from app.services.security import create_access_token, authenticate_user, get_current_user, get_password_hash
-
+from app.services.mail import mail_app
 user_router = APIRouter(prefix='/api/v1/users', tags=['Reg&Login&Me'])
 
 
@@ -40,6 +40,7 @@ async def register_user(user_data: UserSchemaCreate, uow: UnitOfWork = Depends(U
 
     user_data = user_data.model_dump(exclude_unset=True)
     new_user : UserModel = await UserService.add_one_and_get_obj(uow=uow, **user_data)
+    mail_app.send_registration_email(email=new_user.email, name=new_user.email)
     return new_user
 
 @user_router.post('/login', status_code=status.HTTP_200_OK)
