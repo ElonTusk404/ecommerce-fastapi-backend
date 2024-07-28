@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
     JWT_SECRET: str
+    MAILTRAP_TOKEN: str
 
     @property
     def DB_URL(self):
