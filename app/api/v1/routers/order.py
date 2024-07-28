@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from http.cookiejar import Cookie
 from typing import Annotated, List
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, WebSocketException, status, Depends, WebSocket, WebSocketDisconnect
@@ -11,6 +12,7 @@ from app.utils.unit_of_work import UnitOfWork
 from app.models.user import UserModel
 from app.services.inventory import InventoryService
 from app.models.models import OrderStatus
+from app.services.mail import mail_app
 order_router = APIRouter(prefix='/api/v1/orders', tags = ['Orders'])
 
 admins: List[WebSocket] = []
@@ -34,6 +36,18 @@ async def create_order(
 
     new_order_id = await OrderService.add_one_and_get_id(
         uow=uow, status=OrderStatus.pending, user_id=user.id, total_amount=0, **delivery_details.model_dump(exclude_unset=True)
+    )
+
+    mail_app.send_order_confirmation_email(
+        email=user.email,
+        user_name=user.first_name,
+        order_id=str(new_order_id),
+        order_date=datetime.now(timezone.utc),
+        country=delivery_details.country,
+        city=delivery_details.city,
+        address=delivery_details.address,
+        user_email=user.email
+
     )
 
     background_tasks.add_task(fill_order_task, new_order_id, cart_info, user.id, delivery_details, uow)
