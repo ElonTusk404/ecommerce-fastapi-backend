@@ -3,5 +3,5 @@
 
 
 
-class PaymentService:
+class TronPayments:
     pass
